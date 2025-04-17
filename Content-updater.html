@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Content Updater</title>
+    <!-- Existing styles remain here -->
+</head>
+<body data-page="design-mode"> <!-- Change to "code-mode" for code-mode.html -->
+    <div class="container">
+        <p id="intro">The following commands control the operation of Design Mode:</p>
+        <ul id="commands">
+            <li><code>cmd enterdesign</code>: Activates Design Mode...</li>
+            <!-- Add more <li> items as needed -->
+        </ul>
+    </div>
+
+    <script src="updateContent.js"></script>
+</body>
+</html>
+
+<!-- content.json -->
+{
+    "design-mode": {
+        "intro": "Updated introduction text for Design Mode.",
+        "commands": [
+            "<li><code>cmd enterdesign</code>: Updated description...</li>",
+            "<li><code>cmd exitdesign</code>: Updated exit description...</li>"
+        ]
+    },
+    "code-mode": {
+        "overview": "Updated overview text for Code Mode.",
+        "features": [
+            "<li>Updated feature description 1.</li>",
+            "<li>Updated feature description 2.</li>"
+        ]
+    }
+}
+
+<!-- updateContent.js -->
+document.addEventListener('DOMContentLoaded', function() {
+    const page = document.body.getAttribute('data-page');
+    fetch('content.json')
+        .then(response => response.json())
+        .then(data => {
+            const content = data[page];
+            if (content) {
+                for (const key in content) {
+                    if (typeof content[key] === 'string') {
+                        const element = document.getElementById(key);
+                        if (element) element.textContent = content[key];
+                    } else if (Array.isArray(content[key])) {
+                        const element = document.getElementById(key);
+                        if (element) element.innerHTML = content[key].join('');
+                    }
+                }
+            }
+        })
+        .catch(error => console.error('Error loading content:', error));
+});

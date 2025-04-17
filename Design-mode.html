@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Mode Documentation</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2, h3 {
+            color: #ffffff;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            background-color: #2e2e2e;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        pre {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+        }
+        code {
+            background-color: #333;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .nav-bar a {
+            background-color: #555;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        .nav-bar a:hover {
+            background-color: #777;
+        }
+        .nav-button {
+            background-color: #555;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .nav-button:hover {
+            background-color: #777;
+        }
+    </style>
+</head>
+<body data-page="design-mode">
+    <h1>Design Mode Documentation</h1>
+    <div class="container">
+        <input type="file" id="mdFileInput" accept=".md" style="display: none;">
+        <div class="nav-bar">
+            <a href="combiner.html">Start</a>
+            <a href="code-mode.html">Code Mode</a>
+            <button class="nav-button">Import .md</button>
+        </div>
+        <div class="content">
+            <p>The following commands control the operation of Design Mode:</p>
+            <ul>
+                <li><code>cmd enterdesign</code> or <code>cmd entdsgn</code>: Activates Design Mode, focusing responses on creating design parameters.</li>
+                <li><code>cmd exitdesign</code> or <code>cmd exdsgn</code>: Deactivates Design Mode, resuming dynamic mode switching.</li>
+                <li><code>cmd configdesign</code>: Adjusts Design Mode settings, such as response focus, exclusions, or import/export of designs.</li>
+                <li><code>cmd ques</code>: Queries design-related information, returning structured outlines.</li>
+                <li><code>cmd edit</code>: Modifies design parameters, such as template specifications.</li>
+                <li><code>cmd addexc "section name"</code>: Adds an exclusion for a specified section (e.g., headline, sub-headline) in the current focus, either deleting or hiding it.</li>
+            </ul>
+        <h2>Design Mode</h2>
+
+        <h3>Communication Constraints</h3>
+        <p>Responses adhere to the communication structure defined in '[Project name].md' (Section 2). Development, data, and testing workspaces access parameters solely from the Project Hub Workspace and code/data from the Database Management Workspace, with no direct interactions among them. Proposals from the Prompt Editing Workspace are routed exclusively through the Project Hub Workspace.</p>
+
+        <h3>Overview</h3>
+        <p>Design Mode operates in two configurations based on the availability of external documents (e.g., '[Project name].md'):</p>
+        <ul>
+            <li><strong>Regular Mode</strong>: Activated when external documents are provided, adhering to communication constraints defined in '[Project name].md' (Section 2). Development, data, and testing workspaces access parameters solely from the Project Hub Workspace and code/data from the Database Management Workspace, with no direct interactions among them. Proposals from the Prompt Editing Workspace are routed exclusively through the Project Hub Workspace.</li>
+            <li><strong>Standalone Mode</strong>: Activated when no external documents are provided, removing dependencies on external communication structures and operating independently.</li>
+        </ul>
+
+        <h3>Parameters</h3>
+
+        <h4>Focus</h4>
+        <p>The AI prioritizes design-related tasks, such as creating or modifying design templates (e.g., specifying layout, colors, or styling parameters for a website or app), documenting design ideas, or providing design-related information (via <code>cmd ques</code>). Code generation is strictly prohibited; any coding requests are redirected to Code Mode. All responses must align with design tasks. Upon entering Design Mode with <code>cmd enterdesign</code> or <code>cmd entdsgn</code> and confirming activation, the AI prompts: “Please specify the task focus: webdesign (for websites), project (for projects or apps), game design (for games, under construction), or other (for custom designs).” After selecting a focus, the AI prompts: “Please choose an action: Create a new design or modify an existing design.”</p>
+
+        <p><strong>Export Process</strong>:</p>
+        <ul>
+            <li>After creating or modifying a design, the AI prompts: “Would you like to export this design for later use? If so, it will be exported as a JSON file (parameters) and a Markdown file (detailed explanation), marked as [complete/incomplete] based on the provided parameters.”</li>
+            <li><strong>JSON File</strong>: Contains structured design parameters (e.g., platforms, objectives, deliverables, constraints, file structure) in a format compatible with Code Mode (e.g., <code>design_20250416.json</code>). Includes fields: <code>focus</code>, <code>action</code>, <code>parameters</code>, <code>status</code>, <code>missing_parameters</code>.</li>
+            <li><strong>Markdown File</strong>: Provides a detailed narrative explanation of the design, similar to <code>Project Architecture and Workflow.markdown</code>, with sections like Introduction, Purpose, Architecture Overview, File Structure, and additional context (e.g., component interactions, scalability). Named consistently (e.g., <code>design_20250416_explanation.md</code>).</li>
+            <li>Both files are stored in the project workspace and require confirmation: “Please confirm the action: Export the design to [json_filename] and [md_filename].”</li>
+            <li>The export process applies to all focus areas, ensuring consistency across Webdesign, Project, Game Design, and Other.</li>
+        </ul>
+
+        <h5>Webdesign</h5>
+        <p>This focus prioritizes tasks related to web design, such as creating or modifying website templates (e.g., specifying layout, colors, navigation structures). The AI ensures designs align with web standards and user experience principles.</p>
+
+        <p><strong>New Design</strong>:</p>
+        <ul>
+            <li>The AI prompts: “Please explain the focus of your web design, including the purpose, target audience, required features, or visual style/branding guidelines.” Then, it asks: “How would you like the file structure to be organized? Would you prefer a ‘compact’ structure with a few files handling all components, or a ‘fractured’ structure with multiple files each focusing on different functions?”</li>
+            <li>Inputs are acknowledged with “Logged” or “Noted” until the user says “done.”</li>
+            <li>After “done,” the AI summarizes: “Parameters received. Please confirm the action: Create a new web design with the following parameters: [summary].” If details are missing (e.g., target audience), it adds: “Suggestions: Consider specifying the target audience or branding guidelines.”</li>
+            <li>Upon confirmation, the AI provides an outline, such as:
+                <ul>
+                    <li><strong>Website Design Outline</strong>
+                        <ul>
+                            <li><strong>Purpose</strong>: E-commerce platform</li>
+                            <li><strong>Target Audience</strong>: Young professionals</li>
+                            <li><strong>Key Features</strong>: Product gallery, checkout system</li>
+                            <li><strong>Visual Style</strong>: Modern, blue and white color scheme</li>
+                            <li><strong>File Structure</strong>: Compact</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>The AI prompts for export: “Would you like to export this design for later use? If so, it will be exported as a JSON file (parameters) and a Markdown file (detailed explanation).”</li>
+        </ul>
+
+        <p><strong>Export Example</strong>:</p>
+        <ul>
+            <li><strong>JSON File</strong> (<code>design_20250416.json</code>):</li>
+        </ul>
+        <pre>
+{
+  "focus": "webdesign",
+  "action": "create",
+  "parameters": {
+    "purpose": "E-commerce platform",
+    "target_audience": "Young professionals",
+    "key_features": ["Product gallery", "Checkout system"],
+    "visual_style": "Modern, blue and white color scheme",
+    "file_structure": "compact"
+  },
+  "status": "complete",
+  "missing_parameters": []
+}
+        </pre>
+        <ul>
+            <li><strong>Markdown File</strong> (<code>design_20250416_explanation.md</code>):</li>
+        </ul>
+        <pre>
+# E-commerce Website Design Explanation
+
+## Introduction
+This document outlines the design for a modern e-commerce website, providing a detailed explanation of its parameters, structure, and intended functionality. The design serves as a template for creating a user-friendly online shopping platform.
+
+## Purpose
+The website aims to provide a seamless shopping experience for young professionals, enabling them to browse products, view details, and complete purchases efficiently.
+
+## Architecture Overview
+### Target Audience
+- Young professionals, aged 25–40, seeking convenient online shopping.
+### Key Features
+- **Product Gallery**: Displays products with images, prices, and descriptions.
+- **Checkout System**: Supports secure payment processing and order confirmation.
+### Visual Style
+- Modern aesthetic with a blue and white color scheme, using clean typography and minimalistic design.
+### File Structure
+- Compact: Single `index.html` with embedded CSS and JavaScript for simplicity.
+
+## Component Interactions
+- The product gallery dynamically loads items from a data source (to be implemented in Code Mode).
+- The checkout system integrates with a payment gateway, ensuring secure transactions.
+- Navigation is intuitive, with a top menu linking to key sections (e.g., Home, Products, Cart).
+
+## Scalability and Extensibility
+- The compact file structure supports easy updates, with potential to expand into a fractured structure for larger features (e.g., separate CSS/JS files).
+- The design accommodates future additions, such as user accounts or product reviews.
+
+## Setup Instructions
+- Use the JSON parameters (`design_20250416.json`) in Code Mode to generate the HTML/CSS/JavaScript implementation.
+- Ensure the design is complete before coding, verifying all parameters are specified.
+        </pre>
+
+        <p><strong>Modify Existing Design</strong>:</p>
+        <ul>
+            <li>The AI prompts: “Please upload the design file or describe the changes you need.” Imported designs are validated, and incompatible designs can be adapted using <code>cmd configdesign import custom [filename]</code>.</li>
+        </ul>
+
+        <p><strong>Specific Design Task: File Combiner Website</strong>:</p>
+        <ul>
+            <li><strong>Purpose</strong>: Design a website template for combining text-based files (e.g., <code>.json</code>, <code>.md</code>, <code>.txt</code>) readable by the AI, with the ability to export the combined content as an HTML file.</li>
+            <li><strong>Description</strong>: The template supports uploading or inputting multiple text-based files, displaying their content in distinct sections, and exporting the result as a styled HTML file using a functional export button. For combined code files, the content is broken down into separate code sections for each file.</li>
+            <li><strong>Template Outline</strong>:
+                <ul>
+                    <li><strong>Purpose</strong>: Provide a user-friendly interface for combining and exporting text-based files.</li>
+                    <li><strong>Target Audience</strong>: Developers and content creators working with text-based project files.</li>
+                    <li><strong>Key Features</strong>:
+                        <ul>
+                            <li>File upload/input area for multiple <code>.json</code>, <code>.md</code>, <code>.txt</code>, or other text-based files.</li>
+                            <li>Display area with sections for each file’s content, labeled by file name.</li>
+                            <li>For combined code files, parse and display each file’s code in separate <code>&lt;pre&gt;</code> blocks, using identifiers (e.g., <code># File List ID: FL123</code>) from Code Mode’s file list.</li>
+                            <li>Export button with functional JavaScript (<code>exportToHTML()</code>) to download the combined content as <code>file_combiner_export.html</code>.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Visual Style</strong>:
+                        <ul>
+                            <li>Background: Dark grey (<code>#1a1a1a</code>), providing a sleek, modern aesthetic as specified.</li>
+                            <li>Text: White (<code>#ffffff</code>), ensuring readability against the dark background.</li>
+                            <li>Container: Medium dark grey (<code>#2e2e2e</code>) with a subtle shadow for depth.</li>
+                            <li>Buttons: Default background <code>#555</code> with white text, hovering to <code>#777</code>, enhancing interactivity.</li>
+                            <li>Code blocks: Dark grey (<code>#333</code>) background with white (<code>#ffffff</code>) text, using a monospaced layout within <code>&lt;pre&gt;</code> for code readability.</li>
+                            <li>Layout: Centered container with a header (“File Combiner”), file input, and export button, using a clean, modern design.</li>
+                        </ul>
+                    </li>
+                    <li><strong>File Structure</strong>: Compact (single <code>index.html</code> with embedded CSS and JavaScript).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <p><strong>Example Template Structure</strong>:</p>
+        <pre>&lt;!DOCTYPE html&gt;
+            &lt;html lang="en"&gt;
+            &lt;head&gt;
+                &lt;meta charset="UTF-8"&gt;
+                &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+                &lt;title&gt;File Combiner&lt;/title&gt;
+                &lt;style&gt;
+                    body {
+                        background-color: #1a1a1a;
+                        color: #ffffff;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    h1 {
+                        color: #ffffff;
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                    .container {
+                        max-width: 800px;
+                        margin: 0 auto;
+                        background-color: #2e2e2e;
+                        padding: 20px;
+                        border-radius: 5px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                    }
+                    .button-container {
+                        margin-top: 20px;
+                        text-align: center;
+                    }
+                    input[type="file"] {
+                        display: block;
+                        margin: 10px auto;
+                        color: #ffffff;
+                    }
+                    button {
+                        background-color: #555;
+                        color: #ffffff;
+                        padding: 10px 20px;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    }
+                    button:hover {
+                        background-color: #777;
+                    }
+                    pre {
+                        background-color: #333;
+                        padding: 10px;
+                        border-radius: 5px;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                    }
+                &lt;/style&gt;
+            &lt;/head&gt;
+            &lt;body&gt;
+                &lt;h1&gt;File Combiner&lt;/h1&gt;
+                &lt;div class="container"&gt;
+                    &lt;div class="button-container"&gt;
+                        &lt;input type="file" id="fileInput" multiple accept="*/*"&gt;
+                        &lt;button onclick="exportToHTML()"&gt;Export to HTML&lt;/button&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            
+                &lt;script&gt;
+                    let fileContents = [];
+            
+                    // Function to escape HTML characters
+                    function escapeHTML(str) {
+                        return str.replace(/&amp;/g, '&amp;amp;')
+                                 .replace(/&lt;/g, '&amp;lt;')
+                                 .replace(/&gt;/g, '&amp;gt;')
+                                 .replace(/&quot;/g, '&amp;quot;')
+                                 .replace(/&apos;/g, '&amp;apos;');
+                    }
+            
+                    document.getElementById('fileInput').addEventListener('change', function(event) {
+                        fileContents = [];
+                        const files = event.target.files;
+                        if (files.length === 0) return;
+            
+                        Array.from(files).forEach((file, index) => {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                fileContents[index] = {
+                                    name: file.name,
+                                    content: e.target.result
+                                };
+                                if (fileContents.filter(Boolean).length === files.length) {
+                                    console.log('All files loaded:', fileContents);
+                                }
+                            };
+                            reader.readAsText(file);
+                        });
+                    });
+            
+                    function exportToHTML() {
+                        if (fileContents.length === 0) {
+                            alert('Please select files to export.');
+                            return;
+                        }
+            
+                        // Combine file contents with labels, escaping HTML characters
+                        let combinedContent = '';
+                        fileContents.forEach(file => {
+                            const escapedContent = escapeHTML(file.content);
+                            combinedContent += `&lt;h3&gt;File: ${file.name}&lt;/h3&gt;&lt;pre&gt;${escapedContent}&lt;/pre&gt;`;
+                        });
+            
+                        const htmlContent = `
+                            &lt;!DOCTYPE html&gt;
+                            &lt;html lang="en"&gt;
+                            &lt;head&gt;
+                                &lt;meta charset="UTF-8"&gt;
+                                &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+                                &lt;title&gt;Exported File Combiner&lt;/title&gt;
+                                &lt;style&gt;
+                                    body { background-color: #1a1a1a; color: #ffffff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                                    .container { max-width: 800px; margin: 0 auto; background-color: #2e2e2e; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); }
+                                    h3 { color: #ffffff; }
+                                    pre { background-color: #333; padding: 10px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
+                                &lt;/style&gt;
+                            &lt;/head&gt;
+                            &lt;body&gt;
+                                &lt;h1 style="color: #ffffff; text-align: center; margin-bottom: 20px;"&gt;File Combiner&lt;/h1&gt;
+                                &lt;div class="container"&gt;${combinedContent}&lt;/div&gt;
+                            &lt;/body&gt;
+                            &lt;/html&gt;
+                        `;
+            
+                        const blob = new Blob([htmlContent], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'file_combiner_export.html';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }
+                &lt;/script&gt;
+            &lt;/body&gt;
+            &lt;/html&gt;
+            </pre>        
+            
+                    <p><strong>Behavior</strong>:</p>
+                    <ul>
+                        <li><strong>File Display</strong>: Each uploaded file’s content is displayed in a <code>&lt;h3&gt;File: [filename]&lt;/h3&gt;&lt;pre&gt;</code> block. Text files (<code>.txt</code>, <code>.md</code>) are shown as escaped plain text; JSON files retain formatting; combined code files are displayed as continuous text (parsed into separate blocks in Code Mode using file list identifiers).</li>
+                        <li><strong>Export</strong>: The <code>exportToHTML()</code> function combines file contents into a styled HTML file (<code>file_combiner_export.html</code>), downloadable via a click event, with the same dark theme and sectional layout.</li>
+                        <li><strong>Status</strong>: Complete if all parameters (purpose, audience, features, style, structure) are specified; incomplete if any are missing.</li>
+                    </ul>
+            
+                    <p><strong>Export Example</strong>:</p>
+                    <ul>
+                        <li><strong>JSON File</strong> (<code>file_combiner_20250416.json</code>):</li>
+                    </ul>
+                    <pre>
+            {
+              "focus": "webdesign",
+              "action": "create",
+              "parameters": {
+                "purpose": "Combine and export text-based files",
+                "target_audience": "Developers and content creators",
+                "key_features": [
+                  "File upload/input for *.*",
+                  "Sectional display of file contents",
+                  "Export as styled HTML file with functional export button"
+                ],
+                "visual_style": "Dark grey background (#1a1a1a), white text (#ffffff), container in #2e2e2e, buttons in #555/#777, code blocks in #333 with #ffffff text",
+                "file_structure": "compact"
+              },
+              "status": "complete",
+              "missing_parameters": []
+            }
+                    </pre>
+                    <ul>
+                        <li><strong>Markdown File</strong> (<code>file_combiner_20250416_explanation.md</code>):</li>
+                    </ul>
+                    <pre>        
+        <p><strong>Behavior</strong>:</p>
+        <ul>
+            <li><strong>File Display</strong>: Each uploaded file’s content is displayed in a <code>&lt;h3&gt;File: [filename]&lt;/h3&gt;&lt;pre&gt;</code> block. Text files (<code>.txt</code>, <code>.md</code>) are shown as escaped plain text; JSON files retain formatting; combined code files are displayed as continuous text (parsed into separate blocks in Code Mode using file list identifiers).</li>
+            <li><strong>Export</strong>: The <code>exportToHTML()</code> function combines file contents into a styled HTML file (<code>file_combiner_export.html</code>), downloadable via a click event, with the same dark theme and sectional layout.</li>
+            <li><strong>Status</strong>: Complete if all parameters (purpose, audience, features, style, structure) are specified; incomplete if any are missing.</li>
+        </ul>
+
+        <p><strong>Export Example</strong>:</p>
+        <ul>
+            <li><strong>JSON File</strong> (<code>file_combiner_20250416.json</code>):</li>
+        </ul>
+        <pre>
+{
+  "focus": "webdesign",
+  "action": "create",
+  "parameters": {
+    "purpose": "Combine and export text-based files",
+    "target_audience": "Developers and content creators",
+    "key_features": [
+      "File upload/input for *.*",
+      "Sectional display of file contents",
+      "Export as styled HTML file with functional export button"
+    ],
+    "visual_style": "Dark grey background (#1a1a1a), white text (#ffffff), container in #2e2e2e, buttons in #555/#777, code blocks in #333 with #ffffff text",
+    "file_structure": "compact"
+  },
+  "status": "complete",
+  "missing_parameters": []
+}
+        </pre>
+        <ul>
+            <li><strong>Markdown File</strong> (<code>file_combiner_20250416_explanation.md</code>):</li>
+        </ul>
+        <pre>
+# File Combiner Website Design Explanation
+
+## Introduction
+This document provides a comprehensive explanation of the design for a website that combines text-based files (e.g., .json, .md, .txt) into a unified interface, with the ability to export the combined content as a styled HTML file. The design includes a functional export button, to be implemented in Code Mode for full functionality.
+
+## Purpose
+The website enables developers and content creators to upload or input multiple text-based files, view their contents in organized sections, and export the result as a downloadable HTML file, leveraging a dark, modern aesthetic.
+
+## Architecture Overview
+### Target Audience
+- Developers and content creators working with project files in formats like .json, .md, or .txt.
+### Key Features
+- **File Upload/Input**: Supports multiple file uploads (accepting *.*) or text input for text-based formats.
+- **Sectional Display**: Each file’s content is displayed in a dedicated section, labeled with the file name, using &lt;pre&gt; blocks.
+- **Export**: Includes a functional export button that generates and downloads a styled HTML file (file_combiner_export.html) using JavaScript.
+### Visual Style
+- **Background**: Dark grey (#1a1a1a), providing a sleek, modern aesthetic.
+- **Text**: White (#ffffff), ensuring readability against the dark background.
+- **Container**: Medium dark grey (#2e2e2e) with a subtle shadow for depth.
+- **Buttons**: Default background #555 with white text, hovering to #777, enhancing interactivity.
+- **Code Blocks**: Dark grey (#333) background with white (#ffffff) text, using a monospaced layout within &lt;pre&gt; for code readability.
+- **Layout**: Centered container with a header (“File Combiner”), file input, and export button, designed for a clean, user-friendly experience.
+### File Structure
+- Compact: Single index.html with embedded CSS and JavaScript, suitable for initial design and implementation in Code Mode.
+
+## Component Interactions
+- The upload/input section uses an event listener to read file contents with FileReader, storing them in an array.
+- The content section dynamically generates &lt;h3&gt; and &lt;pre&gt; elements for each file, with escaped HTML characters for safety.
+- The exportToHTML() function combines contents into a new HTML document, styled consistently, and triggers a download via a Blob and URL.createObjectURL.
+- Combined code files can be parsed further in Code Mode using file list identifiers for separation.
+
+## Scalability and Extensibility
+- The compact structure supports rapid prototyping, with potential to expand into a fractured structure for larger projects.
+- The design accommodates additional file types (e.g., .py, .yaml) and enhanced export features in Code Mode.
+- Future enhancements could include file editing or backend integration.
+
+## Setup Instructions
+- Use the JSON parameters (file_combiner_20250416.json) in Code Mode to generate the HTML/CSS/JavaScript implementation.
+- Ensure the design is complete, verifying all parameters.
+- In Code Mode, implement the exportToHTML() function fully, referencing the file list (e.g., FL123) for combined code parsing.
+        </pre>
+
+        <h5>Project</h5>
+        <p>This focus prioritizes tasks related to project design, such as creating or modifying project plans or layouts for non-web applications (e.g., mobile or desktop apps). Upon selecting this focus, the AI prompts: “Please choose an action: Create a new project design or modify an existing project design.”</p>
+
+        <p><strong>New Design</strong>:</p>
+        <ul>
+            <li>The AI requests: “Please explain the focus of your project design, including the platforms involved (e.g., web, mobile app, desktop app), main objectives, key deliverables, or constraints.”</li>
+            <li>Based on platforms mentioned, the AI asks: “For [platform], how would you like the file structure to be organized? Would you prefer a ‘compact’ structure with a few files handling all components, or a ‘fractured’ structure with multiple files each focusing on different functions?”</li>
+            <li>The AI acknowledges inputs with “Logged” or “Noted” until you say “done.”</li>
+            <li>After “done,” the AI summarizes: “Parameters received. Please confirm the action: Create a new project design with the following parameters: [summary].” If details are missing, it adds suggestions (e.g., “Suggestions: Consider specifying the timeline or budget constraints.”).</li>
+            <li>Upon confirmation, the AI provides an outline, such as:
+                <ul>
+                    <li><strong>Project Design Outline</strong>
+                        <ul>
+                            <li><strong>Platforms</strong>: Mobile App</li>
+                            <li><strong>Objectives</strong>: Increase user engagement</li>
+                            <li><strong>Deliverables</strong>: Functional prototype</li>
+                            <li><strong>Constraints</strong>: 3-month timeline</li>
+                            <li><strong>File Structure</strong>: Compact</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>The AI prompts: “Would you like to export this design for later use? If so, it will be exported as a JSON file (parameters) and a Markdown file (detailed explanation).”</li>
+            <li>Users can add exclusions during the process using <code>cmd addexc "section name"</code>.</li>
+        </ul>
+
+        <p><strong>Modify Existing Design</strong>:</p>
+        <ul>
+            <li>The AI prompts: “Please upload the design file or describe the updates you need.” Imported designs are validated, and incompatible designs can be imported using <code>cmd configdesign import custom [filename]</code>.</li>
+        </ul>
+
+        <h5>Game Design</h5>
+        <p>This focus is intended for game-related design tasks but is currently not fully functional. Upon selection, the AI responds:</p>
+        <p><strong>"Game Design Focus is currently under construction. This feature is being developed and will be available soon. In the meantime, you can use the 'other' focus for custom design needs or select a different focus."</strong></p>
+
+        <h5>Other</h5>
+        <p>This focus allows for custom design tasks. Upon selecting this focus, the AI prompts: “You've selected the 'other' focus for a custom design. Please describe the type of design you need, including any specific goals or requirements. I'll help you outline a tailored design based on your input.”</p>
+        <ul>
+            <li>The AI acknowledges inputs with “Logged” or “Noted” until you say “done.”</li>
+            <li>After “done,” the AI summarizes: “Parameters received. Please confirm the action: Create a custom design outline with the following parameters: [summary].” It adds suggestions if needed (e.g., “Suggestions: Consider specifying the target audience or timeline.”).</li>
+            <li>Upon confirmation, the AI provides a tailored outline, such as:
+                <ul>
+                    <li><strong>Custom Design Outline</strong>
+                        <ul>
+                            <li><strong>Project</strong>: Poster Design</li>
+                            <li><strong>Goals</strong>: Retro theme, bold text</li>
+                            <li><strong>Color Palette</strong>: Red and yellow</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>The AI prompts: “Would you like to export this design for later use? If so, it will be exported as a JSON file (parameters) and a Markdown file (detailed explanation).”</li>
+            <li>Users can add exclusions during the process using <code>cmd addexc "section name"</code>.</li>
+            <li>Incompatible designs can be imported using <code>cmd configdesign import custom [filename]</code>.</li>
+        </ul>
+
+        <h4>Response Exclusions</h4>
+        <p>This parameter defines sections to be excluded from AI responses in Design Mode, specific to the current focus. The current settings, modifiable via <code>cmd configdesign</code> or <code>cmd addexc</code> commands, are:</p>
+        <ul>
+            <li><strong>Removed Sections</strong>: None (default). No sections are entirely omitted unless specified.</li>
+            <li><strong>Hidden Sections with Notes</strong>: None (default). No sections are hidden with a note unless specified.</li>
+        </ul>
+
+        <p>Exclusions can be managed using the following commands:</p>
+        <ul>
+            <li><strong>Exclude Content (Configuration)</strong>: Use <code>cmd configdesign exclude [delete|hide] "section name"</code> to exclude a section or element within the current focus.
+                <ul>
+                    <li>Example: <code>cmd configdesign exclude hide "Example Scenarios"</code> hides the "Example Scenarios" section.</li>
+                    <li>Example: <code>cmd configdesign exclude delete "Suggestions"</code> deletes suggestions.</li>
+                </ul>
+            </li>
+            <li><strong>Exclude Content (On-the-Go)</strong>: Use <code>cmd addexc "section name"</code> to add an exclusion for a specific section (e.g., headline, sub-headline) during the design process, defaulting to "hide" unless set to "delete" via <code>cmd configdesign set exclusion_default delete</code>.
+                <ul>
+                    <li>Example: <code>cmd addexc "headline"</code> hides the "headline" section.</li>
+                    <li>Success Response: “ok, 'headline' is hidden” (or “ok, 'headline' is deleted” if default is set to delete).</li>
+                    <li>If the section does not exist: “The section '[section name]' does not exist. Please check the section name and try again.”</li>
+                </ul>
+            </li>
+            <li><strong>Include Previously Excluded Content</strong>: Use <code>cmd configdesign include "section name"</code> to remove an exclusion within the current focus.
+                <ul>
+                    <li>Example: <code>cmd configdesign include "Suggestions"</code> re-enables suggestions.</li>
+                </ul>
+            </li>
+            <li><strong>List Current Exclusions</strong>: Use <code>cmd configdesign list exclusions</code> to view exclusions specific to the current focus.
+                <ul>
+                    <li>Example Response:
+                        <pre>
+Current Exclusions (Web Design Focus):
+- Example Scenarios: hide
+- Suggestions: delete
+- Headline: hide
+                        </pre>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Reset All Exclusions</strong>: Use <code>cmd configdesign reset exclusions</code> to reset all exclusions to their default state (no exclusions) for the current focus.</li>
+            <li><strong>Export Exclusions</strong>: Use <code>cmd configdesign export exclusions</code> to export current exclusions for the active focus to a file.</li>
+            <li><strong>Import Exclusions</strong>: Use <code>cmd configdesign import exclusions [file]</code> to import exclusions from a specified file into the current focus.</li>
+            <li><strong>Set Exclusion Default Behavior</strong>: Use <code>cmd configdesign set exclusion_default [delete|hide]</code> to set the default behavior for <code>cmd addexc</code>.
+                <ul>
+                    <li>Example: <code>cmd configdesign set exclusion_default delete</code> sets <code>cmd addexc</code> to delete sections by default.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <p><strong>Handling Invalid Exclusion Attempts</strong>:</p>
+        <ul>
+            <li>If you attempt to exclude a non-existent section, the AI responds: “The section '[section name]' does not exist. Please check the section name and try again.”</li>
+        </ul>
+
+        <p><strong>Standard Sections and Elements</strong>:</p>
+        <ul>
+            <li>Common sections or elements that can be excluded, specific to each focus, include:
+                <ul>
+                    <li>Proposed Change</li>
+                    <li>Short Description</li>
+                    <li>Files to be Modified</li>
+                    <li>New Files to be Created</li>
+                    <li>Code Snippet</li>
+                    <li>Example Scenarios</li>
+                    <li>Final Notes</li>
+                    <li>Suggestions</li>
+                    <li>Headline</li>
+                    <li>Sub-headline</li>
+                </ul>
+            </li>
+        </ul>
+
+        <p><strong>How Exclusions Work</strong>:</p>
+        <ul>
+            <li><strong>Deleted Content</strong>: Removed entirely, limited to the current focus.</li>
+            <li><strong>Hidden Content</strong>: Omitted but listed in "Hidden Sections" for the current focus.</li>
+            <li>Exclusions are focus-specific and persist across sessions within that focus until modified or reset.</li>
+        </ul>
+
+        <h4>Query Handling</h4>
+        <p>For queries unrelated to design tasks (e.g., coding requests like “Generate HTML”), the AI responds: “In Design Mode, I focus on creating design parameters. For this query, I can document a design idea related to your request (e.g., ‘cmd ques “Section 3” “add design note for HTML UI”’), or you can exit Design Mode with ‘cmd exitdesign’ to use Code Mode.” For coding requests, the AI emphasizes: “Code generation is not allowed in Design Mode. Please use Code Mode.”</p>
+
+        <h4>Sub-Mode Behavior</h4>
+        <p>Sub-Mode Commands (e.g., <code>cmd ques</code>, <code>cmd edit</code>) are executed within the context of design tasks. For example, <code>cmd ques “Section 3”</code> might return: “Section 3 contains a design template for a file combiner website.” If a Sub-Mode Command cannot be interpreted (e.g., a coding-related edit), the AI prompts the user to exit Design Mode.</p>
+
+        <h4>Confirmation Prompt for Design Mode Actions</h4>
+        <p>All actions in Design Mode (e.g., documenting a design template, exporting a design, adding an exclusion, importing a custom design) require a confirmation prompt: “Please confirm the action: [description of the action].” Upon confirmation, the AI responds: “Change confirmed: [brief description].” Full text is only provided if requested or upon exiting Design Mode.</p>
+
+        <h4>Configure Design Mode Settings</h4>
+        <p>The <code>cmd configdesign</code> command enables customization of Design Mode settings, including managing exclusions for sections or elements (e.g., suggestions), importing/exporting designs, and handling complex or vague inputs. Settings are specific to the currently active focus area (e.g., webdesign, project, game design, other) and do not carry over between different focuses.</p>
+
+        <h5>Managing Response Exclusions</h5>
+        <p>Exclusions allow you to control which parts of the AI's response are included within the active focus area in Design Mode. Standard sections (e.g., "Example Scenarios") or elements like suggestions, headlines, or sub-headlines can be excluded.</p>
+        <ul>
+            <li><strong>Delete</strong>: Completely removes the excluded content from the response.</li>
+            <li><strong>Hide</strong>: Omits the content but lists it in a "Hidden Sections" section at the end.</li>
+        </ul>
+        <p>Exclusions are applied during response generation in Design Mode and persist within the specific focus until modified.</p>
+
+        <p><strong>Available Commands</strong>:</p>
+        <ul>
+            <li><strong>Exclude Content (Configuration)</strong>: Use <code>cmd configdesign exclude [delete|hide] "section name"</code> to exclude a section or element within the current focus.
+                <ul>
+                    <li>Example: <code>cmd configdesign exclude hide "Example Scenarios"</code> hides the "Example Scenarios" section.</li>
+                    <li>Example: <code>cmd configdesign exclude delete "Suggestions"</code> deletes suggestions.</li>
+                </ul>
+            </li>
+            <li><strong>Exclude Content (On-the-Go)</strong>: Use <code>cmd addexc "section name"</code> to add an exclusion for a specific section (e.g., headline, sub-headline) during the design process, defaulting to "hide" unless set to "delete" via <code>cmd configdesign set exclusion_default delete</code>.
+                <ul>
+                    <li>Example: <code>cmd addexc "headline"</code> hides the "headline" section.</li>
+                    <li>Success Response: “ok, 'headline' is hidden” (or “ok, 'headline' is deleted” if default is set to delete).</li>
+                    <li>If the section does not exist: “The section '[section name]' does not exist. Please check the section name and try again.”</li>
+                </ul>
+            </li>
+            <li><strong>Include Previously Excluded Content</strong>: Use <code>cmd configdesign include "section name"</code> to remove an exclusion within the current focus.
+                <ul>
+                    <li>Example: <code>cmd configdesign include "Suggestions"</code> re-enables suggestions.</li>
+                </ul>
+            </li>
+            <li><strong>List Current Exclusions</strong>: Use <code>cmd configdesign list exclusions</code> to view exclusions specific to the current focus.
+                <ul>
+                    <li>Example Response:
+                        <pre>
+Current Exclusions (Web Design Focus):
+- Example Scenarios: hide
+- Suggestions: delete
+- Headline: hide
+                        </pre>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Reset All Exclusions</strong>: Use <code>cmd configdesign reset exclusions</code> to reset all exclusions to their default state (no exclusions) for the current focus.</li>
+            <li><strong>Export Exclusions</strong>: Use <code>cmd configdesign export exclusions</code> to export current exclusions for the active focus to a file.</li>
+            <li><strong>Import Exclusions</strong>: Use <code>cmd configdesign import exclusions [file]</code> to import exclusions from a specified file into the current focus.</li>
+            <li><strong>Set Exclusion Default Behavior</strong>: Use <code>cmd configdesign set exclusion_default [delete|hide]</code> to set the default behavior for <code>cmd addexc</code>.
+                <ul>
+                    <li>Example: <code>cmd configdesign set exclusion_default delete</code> sets <code>cmd addexc</code> to delete sections by default.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <p><strong>Handling Invalid Exclusion Attempts</strong>:</p>
+        <ul>
+            <li>If you attempt to exclude a non-existent section, the AI responds: “The section '[section name]' does not exist. Please check the section name and try again.”</li>
+        </ul>
+
+        <p><strong>Standard Sections and Elements</strong>:</p>
+        <ul>
+            <li>Common sections or elements that can be excluded, specific to each focus, include:
+                <ul>
+                    <li>Proposed Change</li>
+                    <li>Short Description</li>
+                    <li>Files to be Modified</li>
+                    <li>New Files to be Created</li>
+                    <li>Code Snippet</li>
+                    <li>Example Scenarios</li>
+                    <li>Final Notes</li>
+                    <li>Suggestions</li>
+                    <li>Headline</li>
+                    <li>Sub-headline</li>
+                </ul>
+            </li>
+        </ul>
+
+        <p><strong>How Exclusions Work</strong>:</p>
+        <ul>
+            <li><strong>Deleted Content</strong>: Removed entirely, limited to the current focus.</li>
+            <li><strong>Hidden Content</strong>: Omitted but listed in "Hidden Sections" for the current focus.</li>
+            <li>Exclusions are focus-specific and persist across sessions within that focus until modified or reset.</li>
+        </ul>
+
+        <h5>Importing and Exporting Designs</h5>
+        <p>Design Mode supports importing and exporting design parameters to facilitate working with incomplete, modifiable, or custom designs. Exported designs include a status indicator ("complete" or "incomplete") to ensure other modes (e.g., Code Mode) do not generate code based on incomplete templates. Custom design documents that are incompatible with the current focus can be imported and adapted using a dedicated command.</p>
+
+        <p><strong>Available Commands</strong>:</p>
+        <ul>
+            <li><strong>Export Design</strong>: Use <code>cmd configdesign export design</code> to save the current design parameters to a JSON file. The file includes the focus area, action, parameters, status ("complete" or "incomplete"), and any missing parameters.
+                <ul>
+                    <li>Example: <code>cmd configdesign export design</code> after creating a web design exports a file like <code>webdesign_20250416.json</code>.</li>
+                    <li>After “done” or an interruption in the design process, the AI prompts: “Would you like to export the current design parameters for later use? If so, it will be marked as [complete/incomplete] based on the provided parameters.”</li>
+                    <li>If confirmed, the AI responds: “Design parameters exported to [filename]. Change confirmed: Exported design marked as [complete/incomplete].”</li>
+                </ul>
+            </li>
+            <li><strong>Import Design</strong>: Use <code>cmd configdesign import design [filename]</code> to load a previously exported design into the current focus area. The AI validates the file and checks the focus and status.
+                <ul>
+                    <li>Example: <code>cmd configdesign import design webdesign_20250416.json</code> imports a web design.</li>
+                    <li>If the design is incompatible with the current focus (e.g., a project design in Webdesign focus), the AI responds: “The imported design is for [focus], but the current focus is [current focus]. Please switch to [focus], or use <code>cmd configdesign import custom [filename]</code> to adapt the design to the current focus.”</li>
+                    <li>If the design is incomplete, the AI responds: “Imported design is incomplete. Missing parameters: [list]. Please provide the missing details or confirm to proceed with the current parameters.”</li>
+                </ul>
+            </li>
+            <li><strong>Import Custom Design</strong>: Use <code>cmd configdesign import custom [filename]</code> to import a custom or incompatible design document (e.g., a design from a different focus or an external format) and adapt it to the current focus. The AI interprets the document, maps its parameters to the required parameters of the current focus, and prompts for confirmation or additional details.
+                <ul>
+                    <li>Example: <code>cmd configdesign import custom external_design.json</code> in Webdesign focus imports a non-Webdesign document and adapts it.</li>
+                    <li>The AI responds: “The custom design document has been interpreted. Proposed mapping to [current focus] parameters: [mapped parameters]. Please confirm the mapping or provide adjustments.”</li>
+                    <li>If parameters are missing or unmappable, the AI prompts: “The following parameters could not be mapped: [list]. Please provide equivalent details for [current focus] or confirm to proceed with partial mapping.”</li>
+                    <li>If the file is invalid, the AI responds: “The file [filename] is not a valid design document. Please check the format and try again.”</li>
+                </ul>
+            </li>
+            <li><strong>List Exported Designs</strong>: Use <code>cmd configdesign list designs</code> to view a list of exported design files available for import, including their focus and status.
+                <ul>
+                    <li>Example Response:
+                        <pre>
+Exported Designs:
+- webdesign_20250416.json (Webdesign, incomplete)
+- project_20250415.json (Project, complete)
+- custom_design_20250416.json (Other, incomplete)
+                        </pre>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <p><strong>File Format</strong>:</p>
+        <p>Exported designs are stored in JSON format with the following structure:</p>
+        <pre>
+{
+  "focus": "webdesign",
+  "action": "create",
+  "parameters": {
+    "purpose": "E-commerce platform",
+    "target_audience": "Young professionals",
+    "key_features": ["Product gallery", "Checkout system"],
+    "visual_style": "Modern, blue and white color scheme",
+    "file_structure": "compact"
+  },
+  "status": "incomplete",
+  "missing_parameters": ["branding_guidelines"]
+}
+        </pre>
+        <ul>
+            <li><strong>focus</strong>: The design focus (webdesign, project, game design, other).</li>
+            <li><strong>action</strong>: The action type (create or modify).</li>
+            <li><strong>parameters</strong>: The collected design parameters (e.g., purpose, target audience).</li>
+            <li><strong>status</strong>: "complete" if all required parameters are provided; "incomplete" otherwise.</li>
+            <li><strong>missing_parameters</strong>: A list of parameters not provided (e.g., branding_guidelines, timeline).</li>
+        </ul>
+
+        <p>Custom design documents may have varied formats (e.g., JSON, YAML, Markdown). The AI interprets these by identifying key-value pairs or structured data and mapping them to the required parameters of the current focus.</p>
+
+        <p><strong>Completeness Check</strong>:</p>
+        <ul>
+            <li>A design is considered <strong>complete</strong> if all required parameters for the focus area are provided, as defined below:
+                <ul>
+                    <li><strong>Webdesign</strong>: Purpose, target audience, key features, visual style, file structure.</li>
+                    <li><strong>Project</strong>: Platforms, objectives, deliverables, constraints, file structure (per platform).</li>
+                    <li><strong>Other</strong>: At least one goal and one specific requirement (e.g., color palette).</li>
+                    <li><strong>Game Design</strong>: Not applicable (under construction).</li>
+                </ul>
+            </li>
+            <li>If any required parameter is missing, the design is marked as <strong>incomplete</strong>, and the missing parameters are listed in the exported file.</li>
+            <li>Upon import (standard or custom), incomplete designs trigger a prompt for the user to provide missing parameters or confirm proceeding with partial data.</li>
+        </ul>
+
+        <p><strong>Handling Invalid Imports</strong>:</p>
+        <ul>
+            <li>If the file is not a valid JSON or lacks required fields (e.g., focus, parameters) for standard imports, the AI responds: “The file [filename] is not a valid design file. Please check the format and try again.”</li>
+            <li>For custom imports, if the file cannot be interpreted (e.g., no recognizable parameters), the AI responds: “The file [filename] cannot be interpreted as a design document. Please ensure it contains structured design parameters and try again.”</li>
+            <li>If the status is "incomplete," the AI warns: “This design is marked as incomplete. It should not be used for code generation until completed. Please provide the missing parameters: [list].”</li>
+        </ul>
+
+        <p><strong>Custom Design Import Process</strong>:</p>
+        <ul>
+            <li><strong>Interpretation</strong>: The AI parses the custom design document to identify parameters (e.g., goals, audience, features) using key-value pairs, headings, or natural language processing for unstructured formats like Markdown.</li>
+            <li><strong>Mapping</strong>: The AI maps identified parameters to the required parameters of the current focus. For example:
+                <ul>
+                    <li>In Webdesign focus, a custom document’s “goal” might map to “purpose,” and “users” to “target audience.”</li>
+                    <li>Unmappable parameters are flagged, and the AI prompts for equivalents.</li>
+                </ul>
+            </li>
+            <li><strong>Confirmation</strong>: The AI presents the proposed mapping: “Proposed mapping to [current focus] parameters: [mapped parameters]. Please confirm the mapping or provide adjustments.”</li>
+            <li><strong>Completion</strong>: If confirmed, the AI integrates the mapped parameters into the current focus, treating the design as a new or modified design. If incomplete, it prompts for missing parameters.</li>
+            <li><strong>Fallback</strong>: If mapping fails significantly, the AI suggests importing as an “Other” focus design: “The custom design cannot be fully mapped to [current focus]. Would you like to import it as a custom design in the ‘other’ focus instead?”</li>
+        </ul>
+
+        <p><strong>Integration with Other Modes</strong>:</p>
+        <ul>
+            <li>In other modes (e.g., Code Mode), the AI checks the <code>status</code> field of a design file before generating code:
+                <ul>
+                    <li>If <code>status</code> is "incomplete," the AI responds: “The design [filename] is incomplete and cannot be used for code generation. Please complete the design in Design Mode using <code>cmd configdesign import design [filename]</code> or <code>cmd configdesign import custom [filename]</code>.”</li>
+                    <li>If <code>status</code> is "complete," the AI proceeds with code generation based on the design parameters.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h5>Handling Complex and Vague Inputs</h5>
+        <p>The AI is designed to handle complex or vague inputs gracefully:</p>
+        <ul>
+            <li><strong>Complex, Multi-Focus Requests</strong>: If a request spans multiple focuses (e.g., web design and project design), the AI breaks it into manageable parts.
+                <ul>
+                    <li>Example Response: <em>"Your request involves both web design and project design. Let's address this in two parts: first, the web design, then the project design."</em></li>
+                </ul>
+            </li>
+            <li><strong>Vague or Incomplete Inputs</strong>: For unclear requests, the AI asks clarifying questions.
+                <ul>
+                    <li>Example: For <em>"I need a design,"</em> the AI responds: <em>"Could you please specify what type of design you need? For example, is it for a website, a project, a game, or something else?"</em></li>
+                </ul>
+            </li>
+            <li><strong>Custom Design Imports</strong>: For ambiguous or unstructured custom design documents, the AI prompts: “The document contains ambiguous parameters: [list]. Please clarify the intended mapping for [current focus] parameters (e.g., purpose, target audience).”</li>
+        </ul>
+        <p>This ensures the AI provides focused, relevant responses, even for broad or unclear queries.</p>
+
+        <h4>Exit Condition</h4>
+        <p>The AI remains in Design Mode until the user explicitly exits using <code>cmd exitdesign</code> or <code>cmd exdsgn</code>, after which the AI responds: “Design Mode deactivated. Design parameters status: [summary of latest design entries]. Resuming dynamic mode switching.”</p>
+
+        <h2>Explanation</h2>
+
+        <h3>Purpose</h3>
+        <p>Locks the AI into a focused state for creating design parameters, ensuring responses align with design tasks until the mode is exited, with confirmation prompts to ensure intentional actions. The import/export functionality ensures designs can be saved, shared, or completed later, with a clear status indicator to prevent premature use in other modes. The <code>cmd addexc</code> command streamlines exclusion management, and the <code>cmd configdesign import custom</code> command enables flexible integration of incompatible design documents.</p>
+
+        <h3>Application</h3>
+        <p>In any chat, the user enters <code>cmd enterdesign</code> or <code>cmd entdsgn</code>, and the AI activates Design Mode, responding: “Design Mode activated. Please specify the task focus: webdesign (for websites), project (for projects or apps), game design (for games, under construction), or other (for custom designs).” After selecting a focus, the AI prompts for actions and details, requiring confirmation for each step, including export/import actions, exclusions added via <code>cmd addexc</code>, and custom design imports.</p>
+
+        <h3>Edge Cases</h3>
+        <ul>
+            <li><strong>Coding Query</strong>: “Code generation is not allowed in Design Mode. Document the design parameters here, or exit Design Mode to use Code Mode for coding tasks.”</li>
+            <li><strong>Incomplete Design</strong>: “The design [filename] is incomplete and cannot be used for code generation. Please complete the design in Design Mode.”</li>
+            <li><strong>Invalid Exclusion</strong>: “The section '[section name]' does not exist. Please check the section name and try again.”</li>
+            <li><strong>Uninterpretable Custom Design</strong>: “The file [filename] cannot be interpreted as a design document. Please ensure it contains structured design parameters and try again.”</li>
+            <li><strong>Game Design Limitation</strong>: “Game Design import/export is under development. Use the ‘other’ focus for custom designs.”</li>
+        </ul>
+
+        <h2>Design Hallmarks</h2>
+
+        <h3>Command Validation</h3>
+        <p>Inputs must start with "cmd" followed by a recognized sub-command (<code>ques</code>, <code>edit</code>, <code>enterdesign</code>, <code>entdsgn</code>, <code>exitdesign</code>, <code>exdsgn</code>, <code>configdesign</code>, <code>addexc</code>).</p>
+        <ul>
+            <li>Unrecognized sub-commands (e.g., <code>cmd foo</code>) prompt: <em>"Unrecognized command. In Design Mode, use 'cmd ques' to query design information, 'cmd edit' to modify design parameters, 'cmd configdesign' to adjust settings, 'cmd addexc' to add exclusions, or 'cmd enterdesign'/'cmd exitdesign' to enter/exit Design Mode."</em></li>
+            <li>Non-design sub-commands (e.g., <code>cmd add file</code>) prompt: <em>"The command '[sub-command]' is not related to design tasks. For this request, consider exiting Design Mode to use the appropriate mode."</em></li>
+            <li>Mode-switching commands (<code>cmd enterdesign</code>, <code>cmd entdsgn</code>, <code>cmd exitdesign</code>, <code>cmd exdsgn</code>) execute immediately without a confirmation prompt.</li>
+        </ul>
+
+        <h3>Response Guidance</h3>
+        <p>Responses focus on design-related tasks (e.g., creating templates, documenting ideas, suggesting design elements, importing/exporting designs, managing exclusions) and adapt to the user’s specific request. The AI provides relevant design information, tailored to the query’s context. Avoids fixed templates or repeating specific examples unless requested, generating content based on user input and intent.</p>
+
+        <h3>Response Clarity</h3>
+        <p>Responses are structured using headings, bullet points, or lists for readability. Adjusts detail level based on request complexity—simple queries receive concise lists, detailed requests receive hierarchical structures. Prioritizes flexibility, adapting to the user’s needs.</p>
+
+        <h3>Response Exclusions</h3>
+        <p>Default: Excludes all non-design content (e.g., code, file operations, unrelated data) from responses. Excluded content is omitted entirely, without notes or placeholders, for deleted sections, or listed in "Hidden Sections" for hidden sections. Users can customize exclusions via <code>cmd configdesign</code> or <code>cmd addexc</code> during the design process.</p>
+
+        <h3>Error Handling</h3>
+        <p>Vague commands (e.g., <code>cmd ques 'design'</code>) prompt: <em>"Please clarify the design-related request (e.g., specify a template type or design element)."</em> Non-design commands (e.g., <code>cmd edit 'add Python function'</code>) prompt: <em>"The command cannot be interpreted as a design task. Please use 'cmd ques', 'cmd edit', 'cmd configdesign', or 'cmd addexc' for design-related actions, or exit Design Mode for other tasks."</em> Invalid design files prompt: “The file [filename] is not a valid design file. Please check the format and try again.” Invalid exclusion sections prompt: “The section '[section name]' does not exist. Please check the section name and try again.” Uninterpretable custom design documents prompt: “The file [filename] cannot be interpreted as a design document. Please ensure it contains structured design parameters and try again.”</p>
+
+        <h3>Mode Persistence</h3>
+        <p>The AI stays in Design Mode until <code>cmd exitdesign</code> or <code>cmd exdsgn</code>, responding: <em>"Design Mode deactivated. Design parameters status: [summary of latest design entries]. Resuming dynamic mode switching."</em> No dynamic mode switching occurs within Design Mode.</p>
+
+        <h3>Note on Contextual Adaptation</h3>
+        <p>The AI interprets user queries contextually, avoiding literal repetition of examples. Responses reflect the user’s specific needs, using examples as inspiration when appropriate, not as strict templates. For vague inputs or custom design imports, the AI asks clarifying questions to ensure relevance.</p>
+
+        <h2>Task 5: Import and Export of Designs</h2>
+        <p>This task implements the ability to import and export designs that are not yet complete or intended for modification, including support for custom design documents that are incompatible with the current focus. It builds on the existing focus areas (webdesign, project, game design, other) and integrates with the Design Mode workflow.</p>
+
+        <h3>Implementation Details</h3>
+        <ul>
+            <li><strong>Export Functionality</strong>:
+                <ul>
+                    <li>Command: <code>cmd configdesign export design</code></li>
+                    <li>Exports design parameters to a JSON file with a status indicator ("complete" or "incomplete").</li>
+                    <li>Includes all provided parameters, a list of missing parameters, and the focus area.</li>
+                    <li>Prompted after “done” or interruption: “Would you like to export the current design parameters for later use? If so, it will be marked as [complete/incomplete] based on the provided parameters.”</li>
+                    <li>Example File: <code>webdesign_20250416.json</code> (see File Format below).</li>
+                </ul>
+            </li>
+            <li><strong>Import Functionality</strong>:
+                <ul>
+                    <li>Command: <code>cmd configdesign import design [filename]</code></li>
+                    <li>Validates the file format, focus, and status.</li>
+                    <li>For incompatible designs, prompts to use <code>cmd configdesign import custom [filename]</code>.</li>
+                    <li>For incomplete designs, prompts for missing parameters: “Imported design is incomplete. Missing parameters: [list]. Please provide the missing details or confirm to proceed.”</li>
+                </ul>
+            </li>
+            <li><strong>Custom Import Functionality</strong>:
+                <ul>
+                    <li>Command: <code>cmd configdesign import custom [filename]</code></li>
+                    <li>Interprets and maps parameters from incompatible or custom design documents to the current focus.</li>
+                    <li>Presents a proposed mapping and prompts for confirmation or adjustments: “Proposed mapping to [current focus] parameters: [mapped parameters]. Please confirm the mapping or provide adjustments.”</li>
+                    <li>Handles incomplete mappings by prompting for missing parameters or suggesting import as an “Other” focus design.</li>
+                </ul>
+            </li>
+            <li><strong>Status Indicator</strong>:
+                <ul>
+                    <li>Designs are marked as “complete” if all required parameters are provided (see Completeness Check below).</li>
+                    <li>Designs are marked as “incomplete” if any required parameter is missing, with missing parameters listed.</li>
+                    <li>In other modes (e.g., Code Mode), incomplete designs are rejected for code generation.</li>
+                </ul>
+            </li>
+            <li><strong>Edge Cases</strong>:
+                <ul>
+                    <li>Invalid file format: “The file [filename] is not a valid design file. Please check the format and try again.”</li>
+                    <li>Focus mismatch: “The imported design is for [focus], but the current focus is [current focus]. Please switch to [focus], or use <code>cmd configdesign import custom [filename]</code> to adapt the design to the current focus.”</li>
+                    <li>Uninterpretable custom design: “The file [filename] cannot be interpreted as a design document. Please ensure it contains structured design parameters and try again.”</li>
+                    <li>Game Design: “Game Design import/export is under development. You can export/import as a custom design using the ‘other’ focus.”</li>
+                </ul>
+            </li>
+            <li><strong>Integration</strong>:
+                <ul>
+                    <li>Exported designs can be imported into the same or a different focus area (if compatible or via custom import).</li>
+                    <li>Exclusions set via <code>cmd configdesign</code> or <code>cmd addexc</code> apply to imported designs, ensuring consistency.</li>
+                    <li>The <code>cmd configdesign list designs</code> command provides visibility into available designs.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Example Usage</h3>
+
+        <h4>Exporting an Incomplete Design with Exclusions</h4>
+        <pre>
+User: cmd enterdesign
+AI: Design Mode activated. Please specify the task focus: webdesign, project, game design, or other.
+User: project
+AI: Please choose an action: Create a new project design or modify an existing project design.
+User: Create
+AI: Please explain the focus of your project design, including the platforms involved (e.g., web, mobile app, desktop app), main objectives, key deliverables, or constraints.
+User: Platforms: Mobile App. Objectives: Increase user engagement. Done.
+AI: Parameters received. Please confirm the action: Create a new project design with the following parameters: Platforms: Mobile App, Objectives: Increase user engagement. Suggestions: Consider specifying deliverables, constraints, or file structure.
+User: cmd addexc "Suggestions"
+AI: Please confirm the action: Add exclusion to hide the 'Suggestions' section in the project design focus.
+User: Confirm
+AI: ok, 'Suggestions' is hidden
+User: Confirm
+AI: Change confirmed: New project design outline created. Would you like to export this design for later use? If so, it will be marked as incomplete.
+User: Yes
+AI: Please confirm the action: Export the project design parameters to project_20250416.json, marked as incomplete.
+User: Confirm
+AI: Design parameters exported to project_20250416.json. Change confirmed: Exported design marked as incomplete.
+        </pre>
+        <p><strong>Exported File (project_20250416.json)</strong>:</p>
+        <pre>
+{
+  "focus": "project",
+  "action": "create",
+  "parameters": {
+    "platforms": ["Mobile App"],
+    "objectives": "Increase user engagement"
+  },
+  "status": "incomplete",
+  "missing_parameters": ["deliverables", "constraints", "file_structure"]
+}
+        </pre>
+
+        <h4>Importing and Completing a Design</h4>
+        <pre>
+User: cmd enterdesign
+AI: Design Mode activated. Please specify the task focus: webdesign, project, game design, or other.
+User: project
+AI: Please choose an action: Create a new project design or modify an existing project design.
+User: Modify
+AI: Please upload the design file or describe the changes you need.
+User: cmd configdesign import design project_20250416.json
+AI: Please confirm the action: Import project design from project_20250416.json.
+User: Confirm
+AI: Imported design is incomplete. Missing parameters: deliverables, constraints, file structure. Please provide the missing details or confirm to proceed with the current parameters.
+User: Deliverables: Functional prototype. Constraints: 3-month timeline. File structure: compact. Done.
+AI: Parameters received. Please confirm the action: Update project design with the following parameters: Platforms: Mobile App, Objectives: Increase user engagement, Deliverables: Functional prototype, Constraints: 3-month timeline, File Structure: compact.
+User: cmd addexc "Headline"
+AI: Please confirm the action: Add exclusion to hide the 'Headline' section in the project design focus.
+User: Confirm
+AI: ok, 'Headline' is hidden
+User: Confirm
+AI: Change confirmed: Project design updated. Would you like to export this design for later use? If so, it will be marked as complete.
+User: Yes
+AI: Please confirm the action: Export the project design parameters to project_20250416_updated.json, marked as complete.
+User: Confirm
+AI: Design parameters exported to project_20250416_updated.json. Change confirmed: Exported design marked as complete.
+        </pre>
+        <p><strong>Exported File (project_20250416_updated.json)</strong>:</p>
+        <pre>
+{
+  "focus": "project",
+  "action": "modify",
+  "parameters": {
+    "platforms": ["Mobile App"],
+    "objectives": "Increase user engagement",
+    "deliverables": "Functional prototype",
+    "constraints": "3-month timeline",
+    "file_structure": "compact"
+  },
+  "status": "complete",
+  "missing_parameters": []
+}
+        </pre>
+
+        <h4>Importing an Incompatible Custom Design</h4>
+        <pre>
+User: cmd enterdesign
+AI: Design Mode activated. Please specify the task focus: webdesign, project, game design, or other.
+User: webdesign
+AI: Please choose an action: Create a new web design or modify an existing web design.
+User: Modify
+AI: Please upload the design file or describe the changes you need.
+User: cmd configdesign import design project_20250416.json
+AI: The imported design is for project, but the current focus is webdesign. Please switch to project focus, or use `cmd configdesign import custom project_20250416.json` to adapt the design to the current focus.
+User: cmd configdesign import custom project_20250416.json
+AI: Please confirm the action: Import and adapt custom design from project_20250416.json to webdesign focus.
+User: Confirm
+AI: The custom design document has been interpreted. Proposed mapping to webdesign parameters:
+  - Purpose: Increase user engagement (mapped from objectives)
+  - Target Audience: Not specified (unmapped)
+  - Key Features: Functional prototype (mapped from deliverables)
+  - Visual Style: Not specified (unmapped)
+  - File Structure: Compact (mapped from file_structure)
+The following parameters could not be mapped: target audience, visual style. Please provide equivalent details for webdesign or confirm to proceed with partial mapping.
+User: Target audience: General users. Visual style: Minimalist, neutral colors. Done.
+AI: Parameters received. Please confirm the action: Create a new web design with the following parameters: Purpose: Increase user engagement, Target Audience: General users, Key Features: Functional prototype, Visual Style: Minimalist, neutral colors, File Structure: compact.
+User: Confirm
+AI: Change confirmed: New web design outline created. Would you like to export this design for later use? If so, it will be marked as complete.
+        </pre>
+        <p><strong>Exported File (webdesign_20250416_adapted.json)</strong>:</p>
+        <pre>
+{
+  "focus": "webdesign",
+  "action": "create",
+  "parameters": {
+    "purpose": "Increase user engagement",
+    "target_audience": "General users",
+    "key_features": ["Functional prototype"],
+    "visual_style": "Minimalist, neutral colors",
+    "file_structure": "compact"
+  },
+  "status": "complete",
+  "missing_parameters": []
+}
+        </pre>
+
+        <h4>Attempting Code Generation with an Incomplete Design</h4>
+        <pre>
+User: cmd exitdesign
+AI: Design Mode deactivated. Design parameters status: Web design created and exported as complete. Resuming dynamic mode switching.
+User: Generate code for project_20250416.json
+AI: The design project_20250416.json is incomplete and cannot be used for code generation. Please complete the design in Design Mode using `cmd configdesign import design project_20250416.json` or `cmd configdesign import custom project_20250416.json`.
+        </pre>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="import-md.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'931b63e19a5a456b',t:'MTc0NDg4NzMyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
+</html>
